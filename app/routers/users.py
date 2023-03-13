@@ -1,18 +1,15 @@
 from fastapi import APIRouter
+from ..models.user import User
+from ..database.mongodb import get_database
 
 router = APIRouter()
+db = get_database()
 
 @router.get("/users")
 async def get_users():
-    # client = get_client()
-    # collection = db["users"]
-    # users = []
-    # async for user in collection.find():
-    # db = client["ifarbo"]
-    #     users.append(user)
-    # return users
-    pass
-
+    cursor = db.users.find()
+    users = await cursor.to_list(length=100)
+    return users
 
 @router.get("/users/{user_id}")
 async def get_user(user_id: str):
