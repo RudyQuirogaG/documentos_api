@@ -7,6 +7,11 @@ from ..database.mongodb import get_database
 router = APIRouter()
 db = get_database()
 
+@router.post("/users")
+async def create_user(user: User):
+    result = await db.users.insert_one(user.dict())
+    return {"_id": str(result.inserted_id)}
+
 @router.get("/users", response_model=List[User])
 async def get_users():
     cursor = db.users.find()
@@ -19,19 +24,24 @@ async def get_users():
 async def get_user(user_id: str):
     user = await db.users.find_one({"_id": ObjectId(user_id)})
     if user:
+        user["_id"] = str(user["_id"])
+        user = User(**user)
         return user
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
-@router.post("/users")
-async def create_user(user: User):
-    result = await db.users.insert_one(user.dict())
-    return {"_id": str(result.inserted_id)}
+@router.put("/users/{user_id}")
+async def update_user(user_id: str, user: User):
+    result = await db.users.update_one({"_id": ObjectId(user_id)}, {"$set": user.dict()})
+    if result.matched_count:
+        return{"message": "User updated susccesfully"}
+    else:
+        raise HTTPException(status_code=404, detail="User no found")
 
-@router.put("/users")
-async def update_user():
-    pass
-
-@router.delete("/users")
-async def delete_user():
-    pass
+@router.delete("/users/{user_id}")
+async def delete_user(user_id: str):
+    result = await db.users.delete_one({"_id": ObjectId(user_id)})
+    if result.deleted_count:
+        return {"message": "User deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
