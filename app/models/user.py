@@ -1,37 +1,44 @@
-from typing import Optional
+from typing import Literal
 from bson import ObjectId
-from pydantic import BaseModel, Field, validator, constr
+from pydantic import BaseModel, Field, validator, constr, EmailStr
 
-class ObjectIdStr(str):
-    """Clase personalizada para serializar/deserializar ObjecId"""
+class PyObjecId(ObjectId):
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
-
+    
     @classmethod
     def validate(cls, v):
         if not ObjectId.is_valid(v):
-            raise ValueError("No es un ObjectId valido")
-        return str(v)
+            raise ValueError("Invalid objectid")
+        return ObjectId(v)
+    
+    @classmethod
+    def __modify_schema__(cls, field_schema):
+        field_schema.update(type="string")
 
 class User(BaseModel):
-    id: Optional[ObjectId] = Field(alias='_id', default=None)
+    """
+    Modelo para representar un usuario en el sistema.
+    Campos:
+        id: Identificador único del usuario.
+        nombre: Nombre del usuario.
+        correo_electronico: Dirección de correo electrónico del usuario.
+        rol: Rol del usuario en el sistema (administrador o usuario).
+        activo: Indica si el usuario está activo en el sistema.
+    """
+
+    id: PyObjecId = Field(default_factory=PyObjecId, alias='_id')
     nombre: constr(min_length=2, max_length=50) = Field(...)
-    correo_electronico: str = Field(...)
-    rol: constr(regex='^(administrador|usuarios)$') = Field (...)
+    correo_electronico: EmailStr = Field(...)
+    rol: Literal["administrador", "usuario"] = Field (...)
     activo: bool = Field(...)
 
     @validator('nombre')
     def validate_nombre(cls, v):
-        if not v:
-            raise ValueError('No puede estar vacio')
+        if not all(c.isalpha() or c.isspace() for c in v):
+            raise ValueError('El nombre solo puede contener letras y espacios')
         return v
-
-    # @validator('correo_electronico')
-    # def validate_correo_electronico(cls, v):
-    #     if not Email.validate(v):
-    #         raise ValueError('No es una direccion de correo electronico valida.')
-    #     return v
     
     @validator('rol')
     def validate_rol(cls, v):
