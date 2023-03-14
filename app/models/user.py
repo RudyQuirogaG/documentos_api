@@ -1,21 +1,7 @@
 from typing import Literal
 from bson import ObjectId
+from ..utils import PyObjecId
 from pydantic import BaseModel, Field, validator, constr, EmailStr
-
-class PyObjecId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-    
-    @classmethod
-    def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid objectid")
-        return ObjectId(v)
-    
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
 
 class User(BaseModel):
     """
@@ -51,7 +37,6 @@ class User(BaseModel):
         anystr_strip_whitespace = True
         use_enum_values = True
         json_encoders = {ObjectId: str}
-        arbitrary_types_allowed = True
         allow_population_by_field_name = True
         schema_extra = {
             'example': {
