@@ -19,3 +19,30 @@ async def get_categorias():
     for categoria in categorias:
         categoria["_id"] = str(categoria["_id"])
     return [Categoria(**categoria) for categoria in categorias]
+
+@router.get("/categorias/{categoria_id}")
+async def get_categoria(categoria_id: str):
+    categoria = await db.categorias.find_one({"_id": ObjectId(categoria_id)})
+    if categoria:
+        categoria["_id"] = str(categoria["_id"])
+        categoria = Categoria(**categoria)
+        return categoria
+    else:
+        raise HTTPException(status_code=404, detail="Categoria not found")
+
+@router.put("/categorias/{categoria_id}")
+async def update_categoria(categoria_id: str, categoria: Categoria):
+    result = await db.categorias.update_one({"_id": ObjectId(categoria_id)}, {"$set": categoria.dict()})
+    if result.matched_count:
+        return{"message": "Categoria update succesfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Categoria no found")
+
+@router.delete("/categorias/{categoria_id}")
+async def delete_categoria(categoria_id: str):
+    result = await db.categorias.delete_one({"_id": ObjectId(categoria_id)})
+    if result.deleted_count:
+        return {"message": "Categoria deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail="Categoria not found")
+    
