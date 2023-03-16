@@ -1,6 +1,6 @@
 from typing import Literal
 from bson import ObjectId
-from ..utils import PyObjecId
+from ..utils import PyObjectId
 from pydantic import BaseModel, Field, validator, constr, EmailStr
 
 class User(BaseModel):
@@ -14,7 +14,7 @@ class User(BaseModel):
         activo: Indica si el usuario está activo en el sistema.
     """
 
-    id: PyObjecId = Field(default_factory=PyObjecId, alias='_id')
+    id: PyObjectId = Field(default_factory=PyObjectId, alias='_id')
     nombre: constr(min_length=2, max_length=50) = Field(...)
     correo_electronico: EmailStr = Field(...)
     rol: Literal["administrador", "usuario"] = Field (...)

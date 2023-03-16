@@ -1,7 +1,6 @@
-from typing import Literal
 from bson import ObjectId
-from ..utils import PyObjecId
-from pydantic import BaseModel, EmailStr, Field, validator, constr
+from ..utils import PyObjectId
+from pydantic import BaseModel, Field, validator, constr
 
 class Categoria(BaseModel):
     """
@@ -12,7 +11,7 @@ class Categoria(BaseModel):
         descripcion: Una descripcion de la categoria.
         activo: Indica si el usuario está activo en el sistema.
     """
-    id: PyObjecId = Field(default_factory=PyObjecId, alias='_id')
+    id: PyObjectId = Field(default_factory=PyObjectId, alias='_id')
     nombre: constr(min_length=2, max_length=50) = Field(...)
     descripcion: constr(min_length=2, max_length=200) = Field(...)
     activo: bool = Field(...)
