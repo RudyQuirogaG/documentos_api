@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
+from fastapi.encoders import jsonable_encoder
 from typing import List
 from ..models.categoria import Categoria
 from ..database.mongodb import get_database
@@ -9,7 +10,8 @@ db = get_database()
 
 @router.post("/categorias")
 async def create_categoria(categoria: Categoria):
-    result = await db.categorias.insert_one(categoria.dict())
+    categoria_dict = jsonable_encoder(categoria)
+    result = await db.categorias.insert_one(categoria_dict)
     return {"_id": str(result.inserted_id)}
 
 @router.get("/categorias", response_model=List[Categoria])
