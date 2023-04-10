@@ -13,7 +13,6 @@ class User(BaseModel):
         rol: Rol del usuario en el sistema (administrador o usuario).
         activo: Indica si el usuario está activo en el sistema.
     """
-
     id: PyObjectId = Field(default_factory=PyObjectId, alias='_id')
     nombre: constr(min_length=2, max_length=50) = Field(...)
     correo_electronico: EmailStr = Field(...)

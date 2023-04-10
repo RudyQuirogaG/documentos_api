@@ -56,18 +56,18 @@ class Documento(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias='_id')
     titulo: constr(min_length=2, max_length=50) = Field(...)
     descripcion: constr(min_length=2, max_length=200) = Field(...)
-    categoria_id: PyObjectId
-    fecha_creacion: datetime = Field(default_factory=datetime.utcnow)
-    fecha_modificacion: datetime = Field(default_factory=datetime.utcnow)
+    id_categoria: PyObjectId
+    fecha_creacion: datetime = None
+    fecha_modificacion: datetime = None
     creado_por: PyObjectId
     modificado_por: PyObjectId
     archivos: List[Archivo]
     revisiones: List[Revision]
     comentarios: List[Comentario]
 
-    @root_validator
+    @root_validator(pre=True)
     def check_fechas(cls, values):
-        if values['fecha_modificacion'] < values['fecha_creacion']:
+        if values.get('fecha_modificacion') is not None and values.get('fecha_modificacion') < values.get('fecha_creacion'):
             raise ValueError('La fecha de modificacion debe ser posterior o igual a fecha de creación')
         return values
 
